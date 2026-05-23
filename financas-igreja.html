@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Finanças da Igreja</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#ffffff;--bg2:#f5f5f7;--bg3:#ebebef;
+  --text:#1a1a1a;--text2:#6b6b6b;--text3:#9b9b9b;
+  --border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.14);
+  --green:#2d7a0f;--red:#c0392b;--blue:#185fa5;--gold:#b8860b;
+  --purple:#6a3db8;--radius:12px;--radius-sm:8px;
+}
+@media(prefers-color-scheme:dark){
+  :root{--bg:#0f0f0f;--bg2:#1a1a1a;--bg3:#252525;
+  --text:#f0f0f0;--text2:#a0a0a0;--text3:#606060;
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.15)}
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh}
+.app{max-width:480px;margin:0 auto;padding:0 0 80px}
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:14px 16px 10px;
+  position:sticky;top:0;background:var(--bg);z-index:50;border-bottom:0.5px solid var(--border)}
+.apptitle{font-size:17px;font-weight:500;color:var(--text)}
+.top-right{display:flex;align-items:center;gap:8px}
+.lock-btn{background:none;border:0.5px solid var(--border2);border-radius:var(--radius-sm);
+  padding:5px 8px;cursor:pointer;color:var(--text2);font-size:14px}
+.screen{display:none;padding:14px 16px}.screen.on{display:block}
+/* LOCK */
+#s-lock{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:70vh;padding:2rem}
+.lock-icon{font-size:52px;margin-bottom:1rem;color:var(--purple)}
+.lock-title{font-size:20px;font-weight:500;margin-bottom:6px;color:var(--text)}
+.lock-sub{font-size:13px;color:var(--text3);margin-bottom:1.5rem;text-align:center}
+.pin-dots{display:flex;gap:12px;margin-bottom:1.5rem}
+.pin-dot{width:14px;height:14px;border-radius:50%;background:var(--bg3);border:1.5px solid var(--border2);transition:all 0.2s}
+.pin-dot.filled{background:var(--purple);border-color:var(--purple)}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:220px}
+.pin-btn{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);
+  padding:14px;font-size:20px;font-weight:500;cursor:pointer;text-align:center;color:var(--text);
+  font-family:'Inter',sans-serif;transition:all 0.15s}
+.pin-btn:active{background:var(--bg3);transform:scale(0.95)}
+.pin-btn.del{font-size:16px;color:var(--red)}
+.pin-btn.ok{background:var(--purple);color:#fff;border-color:var(--purple)}
+/* CARDS */
+.card{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:12px}
+.card-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:12px}
+/* METRICS */
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.metric{background:var(--bg2);border-radius:var(--radius);padding:10px 6px;text-align:center}
+.metric-lbl{font-size:10px;color:var(--text3);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.4px}
+.metric-val{font-size:15px;font-weight:500}
+.metric-val.g{color:var(--green)}.metric-val.r{color:var(--red)}.metric-val.p{color:var(--purple)}
+/* NAV */
+.month-nav{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.nav-btn{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius-sm);
+  padding:6px 12px;cursor:pointer;font-size:14px;color:var(--text);font-family:'Inter',sans-serif}
+.nav-label{flex:1;text-align:center;font-size:15px;font-weight:500;color:var(--text)}
+/* BARS */
+.cat-bar{margin-bottom:9px}
+.cat-bar-label{display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:3px}
+.bar-track{height:6px;background:var(--bg3);border-radius:4px}
+.bar-fill{height:6px;border-radius:4px}
+/* TX */
+.tx-row{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:0.5px solid var(--border)}
+.tx-row:last-child{border-bottom:none}
+.tx-cat{font-size:10px;padding:2px 8px;border-radius:20px;flex-shrink:0;font-weight:500}
+.tx-desc{flex:1;font-size:13px;color:var(--text)}
+.tx-date{font-size:11px;color:var(--text3);flex-shrink:0}
+.tx-val{font-size:13px;font-weight:500;flex-shrink:0}
+.tx-val.out{color:var(--red)}.tx-val.in{color:var(--green)}
+.btn-del{background:none;border:none;cursor:pointer;color:var(--red);font-size:16px;padding:2px 6px}
+/* ANNUAL */
+.yr-row{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:0.5px solid var(--border)}
+.yr-row:last-child{border-bottom:none}
+.yr-mname{font-size:12px;color:var(--text);width:32px;flex-shrink:0}
+.yr-bars{flex:1}
+.yr-track{height:10px;background:var(--bg3);border-radius:4px;position:relative;margin-bottom:3px}
+.yr-fill-in{height:10px;border-radius:4px;background:var(--green);position:absolute;top:0;left:0}
+.yr-fill-out{height:10px;border-radius:4px;background:var(--red);position:absolute;top:0;left:0}
+.yr-vals{text-align:right;min-width:90px;font-size:10px}
+.legend{display:flex;gap:12px;font-size:11px;color:var(--text2);margin-bottom:10px}
+.legend-dot{width:10px;height:10px;border-radius:2px;display:inline-block;margin-right:3px;vertical-align:middle}
+/* FORMS */
+.form-group{margin-bottom:10px}
+.form-group label{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px;font-weight:500}
+.form-group input,.form-group select,.form-group textarea{width:100%;background:var(--bg2);
+  border:0.5px solid var(--border2);border-radius:var(--radius-sm);padding:10px 12px;
+  font-size:14px;color:var(--text);font-family:'Inter',sans-serif;outline:none}
+.form-row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.btn-primary{background:var(--purple);color:#fff;border:none;border-radius:var(--radius);
+  padding:12px;font-size:14px;font-weight:500;cursor:pointer;width:100%;font-family:'Inter',sans-serif;margin-top:4px}
+.btn-secondary{background:var(--bg2);color:var(--text);border:0.5px solid var(--border2);
+  border-radius:var(--radius);padding:10px;font-size:13px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;flex:1}
+.btn-danger{background:rgba(192,57,43,0.1);color:var(--red);border:0.5px solid rgba(192,57,43,0.3);
+  border-radius:var(--radius);padding:10px;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;flex:1}
+.btn-row{display:flex;gap:8px;margin-top:8px}
+/* MEMBER */
+.member-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:0.5px solid var(--border)}
+.member-row:last-child{border-bottom:none}
+.member-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:600;background:rgba(106,61,184,0.12);color:var(--purple);flex-shrink:0}
+.member-name{flex:1;font-size:13px;color:var(--text);font-weight:500}
+.member-info{font-size:11px;color:var(--text3)}
+.member-status{font-size:11px;padding:2px 8px;border-radius:20px;font-weight:500;flex-shrink:0}
+.status-ok{background:rgba(45,122,15,0.1);color:var(--green)}
+.status-late{background:rgba(192,57,43,0.1);color:var(--red)}
+/* BUDGET */
+.budget-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:0.5px solid var(--border)}
+.budget-row:last-child{border-bottom:none}
+/* ALERT */
+.alert-badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:500;margin-bottom:6px}
+.alert-warn{background:rgba(184,134,11,0.1);color:var(--gold);border:0.5px solid rgba(184,134,11,0.3)}
+.alert-danger{background:rgba(192,57,43,0.1);color:var(--red);border:0.5px solid rgba(192,57,43,0.3)}
+.alert-ok{background:rgba(45,122,15,0.1);color:var(--green);border:0.5px solid rgba(45,122,15,0.2)}
+/* CHART */
+.chart-wrap{position:relative;width:200px;height:200px;margin:0 auto 1rem}
+/* STABS */
+.stabs{display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;padding-bottom:4px}
+.stab{padding:6px 14px;border-radius:20px;font-size:12px;cursor:pointer;
+  border:0.5px solid var(--border2);background:var(--bg2);color:var(--text2);font-family:'Inter',sans-serif;white-space:nowrap}
+.stab.on{background:var(--purple);color:#fff;border-color:var(--purple)}
+/* NOTIF */
+.notif{position:fixed;top:70px;left:50%;transform:translateX(-50%);
+  background:var(--bg);border-radius:var(--radius);padding:10px 18px;font-size:13px;
+  z-index:999;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap;
+  box-shadow:0 4px 16px rgba(0,0,0,0.15)}
+.notif.show{opacity:1}
+.empty{text-align:center;padding:2rem;color:var(--text3);font-size:13px}
+/* NAV BAR */
+.nav-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;
+  background:var(--bg);border-top:0.5px solid var(--border);
+  display:flex;justify-content:space-around;padding:6px 0 18px;z-index:100}
+.nb{display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;
+  font-size:10px;color:var(--text3);background:none;border:none;padding:4px 8px;font-family:'Inter',sans-serif}
+.nb.on{color:var(--purple)}
+.nb i{font-size:20px}
+/* PRINT */
+@media print{
+  .nav-bar,.topbar,.btn-del,.lock-btn,.btn-primary,.btn-secondary,.btn-danger,.btn-row,.stabs{display:none!important}
+  .screen{display:block!important;padding:0}
+  .app{max-width:100%;padding:0}
+  body{background:#fff;color:#000}
+  .card{break-inside:avoid;border:1px solid #ddd;margin-bottom:8px}
+  .print-header{display:block!important}
+}
+.print-header{display:none;text-align:center;margin-bottom:1rem;padding-bottom:1rem;border-bottom:2px solid #333}
+.church-header{text-align:center;padding:16px 0 8px;border-bottom:0.5px solid var(--border);margin-bottom:14px}
+.church-name{font-size:18px;font-weight:600;color:var(--purple)}
+.church-sub{font-size:12px;color:var(--text3);margin-top:2px}
+</style>
+</head>
+<body>
+<div class="notif" id="notif"></div>
+<div class="app">
+
+<div class="topbar">
+  <div class="apptitle">⛪ Finanças da Igreja</div>
+  <div class="top-right">
+    <button class="lock-btn" onclick="lockApp()"><i class="ti ti-lock"></i></button>
+  </div>
+</div>
+
+<!-- LOCK -->
+<div class="screen" id="s-lock" style="display:flex">
+  <i class="ti ti-building-church lock-icon"></i>
+  <div class="lock-title">Acesso Restrito</div>
+  <div class="lock-sub">Digite o PIN para acessar as finanças da igreja</div>
+  <div class="pin-dots" id="pin-dots">
+    <div class="pin-dot" id="d0"></div><div class="pin-dot" id="d1"></div>
+    <div class="pin-dot" id="d2"></div><div class="pin-dot" id="d3"></div>
+  </div>
+  <div class="pin-pad">
+    <button class="pin-btn" onclick="pinPress('1')">1</button>
+    <button class="pin-btn" onclick="pinPress('2')">2</button>
+    <button class="pin-btn" onclick="pinPress('3')">3</button>
+    <button class="pin-btn" onclick="pinPress('4')">4</button>
+    <button class="pin-btn" onclick="pinPress('5')">5</button>
+    <button class="pin-btn" onclick="pinPress('6')">6</button>
+    <button class="pin-btn" onclick="pinPress('7')">7</button>
+    <button class="pin-btn" onclick="pinPress('8')">8</button>
+    <button class="pin-btn" onclick="pinPress('9')">9</button>
+    <button class="pin-btn del" onclick="pinDel()"><i class="ti ti-backspace"></i></button>
+    <button class="pin-btn" onclick="pinPress('0')">0</button>
+    <button class="pin-btn ok" onclick="pinOk()"><i class="ti ti-check"></i></button>
+  </div>
+  <div id="pin-msg" style="font-size:12px;color:var(--red);margin-top:12px;height:18px"></div>
+</div>
+
+<!-- MENSAL -->
+<div class="screen" id="s-month">
+  <div class="print-header">
+    <div style="font-size:22px;font-weight:600" id="print-church-name">Igreja</div>
+    <div style="font-size:14px">Relatório Mensal — <span id="print-month-date"></span></div>
+  </div>
+  <div class="church-header">
+    <div class="church-name" id="church-name-display">⛪ Igreja</div>
+    <div class="church-sub" id="church-city-display"></div>
+  </div>
+  <div class="month-nav">
+    <button class="nav-btn" onclick="changeMonth(-1)">‹</button>
+    <div class="nav-label" id="month-label">Maio 2026</div>
+    <button class="nav-btn" onclick="changeMonth(1)">›</button>
+    <button class="nav-btn" onclick="printReport()"><i class="ti ti-printer"></i></button>
+  </div>
+  <div class="metrics" id="month-metrics"></div>
+  <div id="alerts-box"></div>
+  <div class="stabs">
+    <button class="stab on" onclick="monthTab('overview')">Visão geral</button>
+    <button class="stab" onclick="monthTab('chart')">Gráfico</button>
+    <button class="stab" onclick="monthTab('txs')">Lançamentos</button>
+    <button class="stab" onclick="monthTab('dizimos')">Dízimos</button>
+  </div>
+  <div id="mt-overview">
+    <div class="card">
+      <div class="card-title">Entradas por categoria</div>
+      <div id="cat-in-bars"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Saídas por categoria</div>
+      <div id="cat-out-bars"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Orçamento vs realizado</div>
+      <div id="budget-bars"></div>
+    </div>
+  </div>
+  <div id="mt-chart" style="display:none">
+    <div class="card">
+      <div class="card-title">Distribuição de despesas</div>
+      <div class="chart-wrap"><canvas id="pie-chart" role="img" aria-label="Gráfico de despesas"></canvas></div>
+      <div id="pie-legend"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Distribuição de entradas</div>
+      <div class="chart-wrap"><canvas id="pie-chart-in" role="img" aria-label="Gráfico de entradas"></canvas></div>
+      <div id="pie-legend-in"></div>
+    </div>
+  </div>
+  <div id="mt-txs" style="display:none">
+    <div class="card">
+      <div class="card-title">Todos os lançamentos</div>
+      <div id="tx-list"></div>
+    </div>
+  </div>
+  <div id="mt-dizimos" style="display:none">
+    <div class="card">
+      <div class="card-title">Resumo de dízimos</div>
+      <div id="dizimo-summary"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Membros — situação</div>
+      <div id="dizimo-members"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ANUAL -->
+<div class="screen" id="s-annual">
+  <div class="print-header">
+    <div style="font-size:22px;font-weight:600" id="print-church-name2">Igreja</div>
+    <div style="font-size:14px">Relatório Anual — <span id="print-annual-date"></span></div>
+  </div>
+  <div class="month-nav">
+    <button class="nav-btn" onclick="changeYear(-1)">‹</button>
+    <div class="nav-label" id="year-label">2026</div>
+    <button class="nav-btn" onclick="changeYear(1)">›</button>
+    <button class="nav-btn" onclick="printReport()"><i class="ti ti-printer"></i></button>
+  </div>
+  <div class="metrics" id="annual-metrics"></div>
+  <div class="card">
+    <div class="card-title">Mês a mês</div>
+    <div class="legend">
+      <span><span class="legend-dot" style="background:var(--green)"></span>Entradas</span>
+      <span><span class="legend-dot" style="background:var(--red)"></span>Saídas</span>
+    </div>
+    <div id="annual-bars"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Saídas por categoria — ano</div>
+    <div id="annual-cats"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Dízimos — resumo anual</div>
+    <div id="annual-dizimos"></div>
+  </div>
+</div>
+
+<!-- MEMBROS -->
+<div class="screen" id="s-members">
+  <div class="card">
+    <div class="card-title">Membros cadastrados</div>
+    <div id="members-list"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Adicionar membro</div>
+    <div class="form-group">
+      <label>Nome completo</label>
+      <input type="text" id="f-member-name" placeholder="Nome do membro"/>
+    </div>
+    <div class="form-row2">
+      <div class="form-group">
+        <label>Telefone</label>
+        <input type="tel" id="f-member-phone" placeholder="(00) 00000-0000"/>
+      </div>
+      <div class="form-group">
+        <label>Dízimo mensal (R$)</label>
+        <input type="number" id="f-member-dizimo" placeholder="0.00" min="0" step="0.01"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Observação</label>
+      <input type="text" id="f-member-obs" placeholder="Opcional"/>
+    </div>
+    <button class="btn-primary" onclick="addMember()">+ Adicionar membro</button>
+  </div>
+</div>
+
+<!-- LANÇAMENTO -->
+<div class="screen" id="s-add">
+  <div class="card">
+    <div class="card-title">Novo lançamento</div>
+    <div class="form-row2" style="margin-bottom:10px">
+      <div class="form-group" style="margin-bottom:0">
+        <label>Tipo</label>
+        <select id="f-type" onchange="toggleCat()">
+          <option value="in">Entrada</option>
+          <option value="out">Saída</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label>Valor (R$)</label>
+        <input type="number" id="f-amount" placeholder="0.00" min="0" step="0.01"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Descrição</label>
+      <input type="text" id="f-desc" placeholder="Descrição do lançamento"/>
+    </div>
+    <div class="form-group" id="cat-row">
+      <label>Categoria</label>
+      <select id="f-cat"></select>
+    </div>
+    <div class="form-group" id="member-row" style="display:none">
+      <label>Membro (opcional)</label>
+      <select id="f-member-sel">
+        <option value="">— Selecionar membro —</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Data</label>
+      <input type="date" id="f-date"/>
+    </div>
+    <div class="form-group">
+      <label>Observação</label>
+      <input type="text" id="f-obs" placeholder="Opcional"/>
+    </div>
+    <button class="btn-primary" onclick="addTx()">+ Adicionar lançamento</button>
+  </div>
+  <div class="card">
+    <div class="card-title">Lançamentos recentes</div>
+    <div id="recent-list"></div>
+  </div>
+</div>
+
+<!-- CONFIGURAÇÕES -->
+<div class="screen" id="s-settings">
+  <div class="card">
+    <div class="card-title">Dados da Igreja</div>
+    <div class="form-group">
+      <label>Nome da Igreja</label>
+      <input type="text" id="f-church-name" placeholder="Nome da Igreja"/>
+    </div>
+    <div class="form-row2">
+      <div class="form-group">
+        <label>Cidade</label>
+        <input type="text" id="f-church-city" placeholder="Cidade"/>
+      </div>
+      <div class="form-group">
+        <label>Pastor</label>
+        <input type="text" id="f-church-pastor" placeholder="Nome do pastor"/>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="saveChurchInfo()" style="background:var(--purple)">Salvar dados</button>
+  </div>
+  <div class="card">
+    <div class="card-title">PIN / Segurança</div>
+    <div class="form-group">
+      <label>Novo PIN (4 dígitos)</label>
+      <input type="password" id="f-new-pin" placeholder="****" maxlength="4" inputmode="numeric"/>
+    </div>
+    <div class="btn-row">
+      <button class="btn-secondary" onclick="savePin()">Salvar PIN</button>
+      <button class="btn-danger" onclick="clearPin()">Remover PIN</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Orçamentos mensais</div>
+    <div id="budget-settings"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Exportar / Importar</div>
+    <div class="btn-row">
+      <button class="btn-secondary" onclick="exportExcel()"><i class="ti ti-file-spreadsheet"></i> Excel</button>
+      <button class="btn-secondary" onclick="exportCSV()"><i class="ti ti-file-text"></i> CSV</button>
+    </div>
+    <div class="btn-row" style="margin-top:8px">
+      <button class="btn-danger" onclick="clearData()"><i class="ti ti-trash"></i> Limpar todos os dados</button>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<!-- NAV BAR -->
+<nav class="nav-bar" id="main-nav">
+  <button class="nb on" id="nb-month" onclick="go('s-month')">
+    <i class="ti ti-calendar"></i><span>Mensal</span>
+  </button>
+  <button class="nb" id="nb-annual" onclick="go('s-annual')">
+    <i class="ti ti-chart-bar"></i><span>Anual</span>
+  </button>
+  <button class="nb" id="nb-members" onclick="go('s-members')">
+    <i class="ti ti-users"></i><span>Membros</span>
+  </button>
+  <button class="nb" id="nb-add" onclick="go('s-add')">
+    <i class="ti ti-plus"></i><span>Lançar</span>
+  </button>
+  <button class="nb" id="nb-settings" onclick="go('s-settings')">
+    <i class="ti ti-settings"></i><span>Config</span>
+  </button>
+</nav>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+var MONTHS=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+var MONTHS_SHORT=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+
+var CATS_IN=['Dízimos','Ofertas','Ofertas especiais','Missões','Eventos','Doações','Outros (entrada)'];
+var CATS_OUT=['Aluguel/Sede','Água/Luz/Gás','Salários','Material','Manutenção','Missões','Eventos','Equipamentos','Outros (saída)'];
+
+var CAT_COLORS={
+  'Dízimos':'#6a3db8','Ofertas':'#2d7a0f','Ofertas especiais':'#1D9E75',
+  'Missões':'#185fa5','Eventos':'#BA7517','Doações':'#D4537E','Outros (entrada)':'#888780',
+  'Aluguel/Sede':'#c0392b','Água/Luz/Gás':'#D85A30','Salários':'#7F77DD',
+  'Material':'#BA7517','Manutenção':'#888780','Outros (saída)':'#533489',
+  'Equipamentos':'#378ADD'
+};
+
+function save(k,v){try{localStorage.setItem('igreja_'+k,JSON.stringify(v));}catch(e){}}
+function load(k,def){try{var v=localStorage.getItem('igreja_'+k);return v?JSON.parse(v):def;}catch(e){return def;}}
+
+var txs=load('txs',[]);
+var members=load('members',[]);
+var budgets=load('budgets',{});
+var pin=load('pin','');
+var churchInfo=load('churchInfo',{name:'Minha Igreja',city:'',pastor:''});
+var pinInput='';
+var pieChart=null,pieChartIn=null;
+var activeMonthTab='overview';
+var now=new Date();
+var curMonth=now.getMonth(),curYear=now.getFullYear(),viewYear=now.getFullYear();
+
+function fmt(n){return'R$'+Math.abs(n).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function sx(id,v){var e=document.getElementById(id);if(e)e.textContent=v;}
+function getTxs(m,y){return txs.filter(function(t){var d=new Date(t.date);return d.getMonth()===m&&d.getFullYear()===y;});}
+function getYrTxs(y){return txs.filter(function(t){return new Date(t.date).getFullYear()===y;});}
+
+// PIN
+function pinPress(d){if(pinInput.length<4){pinInput+=d;updateDots();}}
+function pinDel(){pinInput=pinInput.slice(0,-1);updateDots();}
+function updateDots(){for(var i=0;i<4;i++){var d=document.getElementById('d'+i);if(d)d.classList.toggle('filled',i<pinInput.length);}}
+function pinOk(){
+  if(!pin){unlockApp();return;}
+  if(pinInput===pin){unlockApp();}
+  else{sx('pin-msg','PIN incorreto. Tente novamente.');pinInput='';updateDots();setTimeout(function(){sx('pin-msg','');},2000);}
+}
+function unlockApp(){
+  document.getElementById('s-lock').style.display='none';
+  document.getElementById('main-nav').style.display='flex';
+  updateChurchHeader();
+  go('s-month');
+}
+function lockApp(){
+  if(!pin){notify('Configure um PIN nas configurações','warn');return;}
+  pinInput='';updateDots();
+  document.querySelectorAll('.screen').forEach(function(s){s.style.display='none';s.classList.remove('on');});
+  document.getElementById('s-lock').style.display='flex';
+  document.getElementById('main-nav').style.display='none';
+}
+function savePin(){
+  var np=document.getElementById('f-new-pin').value;
+  if(np.length!==4||!/^\d{4}$/.test(np)){notify('PIN deve ter 4 dígitos','warn');return;}
+  pin=np;save('pin',pin);notify('PIN salvo com sucesso!','ok');
+}
+function clearPin(){pin='';save('pin','');notify('PIN removido!','ok');}
+
+// NAVIGATION
+function go(id){
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('on');s.style.display='none';});
+  document.querySelectorAll('.nb').forEach(function(b){b.classList.remove('on');});
+  var el=document.getElementById(id);if(el){el.classList.add('on');el.style.display='block';}
+  var map={'s-month':'nb-month','s-annual':'nb-annual','s-members':'nb-members','s-add':'nb-add','s-settings':'nb-settings'};
+  if(map[id])document.getElementById(map[id]).classList.add('on');
+  if(id==='s-month')renderMonth();
+  else if(id==='s-annual')renderAnnual();
+  else if(id==='s-members')renderMembers();
+  else if(id==='s-add'){renderRecent();rebuildCatSel();rebuildMemberSel();}
+  else if(id==='s-settings')renderBudgetSettings();
+}
+
+function monthTab(t){
+  activeMonthTab=t;
+  document.getElementById('mt-overview').style.display=t==='overview'?'block':'none';
+  document.getElementById('mt-chart').style.display=t==='chart'?'block':'none';
+  document.getElementById('mt-txs').style.display=t==='txs'?'block':'none';
+  document.getElementById('mt-dizimos').style.display=t==='dizimos'?'block':'none';
+  document.querySelectorAll('.stab').forEach(function(b,i){b.classList.toggle('on',['overview','chart','txs','dizimos'][i]===t);});
+  if(t==='chart')renderPieCharts();
+  if(t==='dizimos')renderDizimos();
+}
+
+function changeMonth(d){curMonth+=d;if(curMonth<0){curMonth=11;curYear--;}if(curMonth>11){curMonth=0;curYear++;}renderMonth();}
+function changeYear(d){viewYear+=d;renderAnnual();}
+
+function updateChurchHeader(){
+  sx('church-name-display','⛪ '+churchInfo.name);
+  sx('church-city-display',churchInfo.pastor?'Pastor(a): '+churchInfo.pastor+(churchInfo.city?' — '+churchInfo.city:''):churchInfo.city);
+  sx('print-church-name',churchInfo.name);
+  sx('print-church-name2',churchInfo.name);
+}
+
+// MONTHLY
+function renderMonth(){
+  sx('month-label',MONTHS[curMonth]+' '+curYear);
+  sx('print-month-date',MONTHS[curMonth]+' '+curYear);
+  var list=getTxs(curMonth,curYear);
+  var inc=0,exp=0,dizTotal=0;
+  list.forEach(function(t){
+    if(t.type==='in'){inc+=t.amount;if(t.cat==='Dízimos')dizTotal+=t.amount;}
+    else exp+=t.amount;
+  });
+  var saldo=inc-exp;
+  document.getElementById('month-metrics').innerHTML=
+    '<div class="metric"><div class="metric-lbl">Entradas</div><div class="metric-val g">'+fmt(inc)+'</div></div>'+
+    '<div class="metric"><div class="metric-lbl">Saídas</div><div class="metric-val r">'+fmt(exp)+'</div></div>'+
+    '<div class="metric"><div class="metric-lbl">Saldo</div><div class="metric-val '+(saldo>=0?'g':'r')+'">'+fmt(saldo)+'</div></div>';
+  renderAlerts(list);
+  renderCatInBars(list);
+  renderCatOutBars(list,exp);
+  renderBudgetBars(list);
+  renderTxList(list);
+}
+
+function renderAlerts(list){
+  var cats={};
+  list.filter(function(t){return t.type==='out';}).forEach(function(t){cats[t.cat]=(cats[t.cat]||0)+t.amount;});
+  var html='';
+  Object.keys(budgets).forEach(function(c){
+    var b=budgets[c];if(!b||b<=0)return;
+    var pct=Math.round(((cats[c]||0)/b)*100);
+    if(pct>=100)html+='<div class="alert-badge alert-danger"><i class="ti ti-alert-triangle"></i>'+c+' ultrapassou o orçamento!</div>';
+    else if(pct>=80)html+='<div class="alert-badge alert-warn"><i class="ti ti-alert-circle"></i>'+c+' está em '+pct+'%</div>';
+  });
+  document.getElementById('alerts-box').innerHTML=html;
+}
+
+function renderCatInBars(list){
+  var cats={};
+  list.filter(function(t){return t.type==='in';}).forEach(function(t){cats[t.cat]=(cats[t.cat]||0)+t.amount;});
+  var sk=Object.keys(cats).sort(function(a,b){return cats[b]-cats[a];});
+  var mx=sk.length?cats[sk[0]]:1;
+  document.getElementById('cat-in-bars').innerHTML=sk.length?sk.map(function(c){
+    var p=Math.round((cats[c]/mx)*100);var cl=CAT_COLORS[c]||'#888';
+    return '<div class="cat-bar"><div class="cat-bar-label"><span>'+c+'</span><span>'+fmt(cats[c])+'</span></div>'+
+      '<div class="bar-track"><div class="bar-fill" style="width:'+p+'%;background:'+cl+'"></div></div></div>';
+  }).join(''):'<div class="empty">Nenhuma entrada neste mês</div>';
+}
+
+function renderCatOutBars(list,total){
+  var cats={};
+  list.filter(function(t){return t.type==='out';}).forEach(function(t){cats[t.cat]=(cats[t.cat]||0)+t.amount;});
+  var sk=Object.keys(cats).sort(function(a,b){return cats[b]-cats[a];});
+  var mx=sk.length?cats[sk[0]]:1;
+  document.getElementById('cat-out-bars').innerHTML=sk.length?sk.map(function(c){
+    var p=Math.round((cats[c]/mx)*100);var cl=CAT_COLORS[c]||'#888';
+    return '<div class="cat-bar"><div class="cat-bar-label"><span>'+c+'</span><span>'+fmt(cats[c])+'</span></div>'+
+      '<div class="bar-track"><div class="bar-fill" style="width:'+p+'%;background:'+cl+'"></div></div></div>';
+  }).join(''):'<div class="empty">Nenhuma saída neste mês</div>';
+}
+
+function renderBudgetBars(list){
+  var cats={};
+  list.filter(function(t){return t.type==='out';}).forEach(function(t){cats[t.cat]=(cats[t.cat]||0)+t.amount;});
+  var hasBudget=Object.keys(budgets).some(function(k){return budgets[k]>0;});
+  if(!hasBudget){document.getElementById('budget-bars').innerHTML='<div class="empty" style="padding:0.5rem">Configure orçamentos nas Configurações</div>';return;}
+  var html='';
+  Object.keys(budgets).forEach(function(c){
+    var b=budgets[c];if(!b||b<=0)return;
+    var spent=cats[c]||0;var pct=Math.min(100,Math.round((spent/b)*100));
+    var cl=pct>=100?'var(--red)':pct>=80?'var(--gold)':'var(--green)';
+    html+='<div class="budget-row">'+
+      '<div style="flex:1;font-size:13px">'+c+'</div>'+
+      '<div style="width:80px;margin:0 8px"><div class="bar-track"><div class="bar-fill" style="width:'+pct+'%;background:'+cl+'"></div></div></div>'+
+      '<div style="font-size:11px;color:'+cl+';min-width:36px;text-align:right">'+pct+'%</div>'+
+      '<div style="font-size:11px;color:var(--text3);min-width:100px;text-align:right">'+fmt(spent)+'/'+fmt(b)+'</div>'+
+    '</div>';
+  });
+  document.getElementById('budget-bars').innerHTML=html||'<div class="empty" style="padding:0.5rem">Sem dados de orçamento</div>';
+}
+
+function renderTxList(list){
+  var s2=list.slice().sort(function(a,b){return new Date(b.date)-new Date(a.date);});
+  document.getElementById('tx-list').innerHTML=s2.length?s2.map(function(t,i){
+    var d=new Date(t.date);var day=d.getDate()+' '+MONTHS_SHORT[d.getMonth()];var cl=CAT_COLORS[t.cat]||'#888';
+    return '<div class="tx-row">'+
+      '<span class="tx-cat" style="background:'+cl+'22;color:'+cl+'">'+t.cat+'</span>'+
+      '<div style="flex:1;min-width:0"><div class="tx-desc">'+t.desc+'</div>'+(t.member?'<div style="font-size:10px;color:var(--text3)">'+t.member+'</div>':'')+'</div>'+
+      '<span class="tx-date">'+day+'</span>'+
+      '<span class="tx-val '+(t.type==='out'?'out':'in')+'">'+(t.type==='out'?'−':'+')+fmt(t.amount)+'</span>'+
+      '<button class="btn-del" onclick="delTx('+i+')">×</button></div>';
+  }).join(''):'<div class="empty">Nenhum lançamento neste mês</div>';
+}
+
+function delTx(i){
+  var list=getTxs(curMonth,curYear).slice().sort(function(a,b){return new Date(b.date)-new Date(a.date);});
+  var gi=txs.indexOf(list[i]);
+  if(gi>=0){txs.splice(gi,1);save('txs',txs);renderMonth();}
+}
+
+// PIE CHARTS
+function renderPieCharts(){
+  var list=getTxs(curMonth,curYear);
+  renderPie('pie-chart','pie-legend',list.filter(function(t){return t.type==='out';}));
+  renderPie('pie-chart-in','pie-legend-in',list.filter(function(t){return t.type==='in';}));
+}
+
+function renderPie(canvasId,legendId,list){
+  var cats={};
+  list.forEach(function(t){cats[t.cat]=(cats[t.cat]||0)+t.amount;});
+  var labels=Object.keys(cats);var data=labels.map(function(c){return cats[c];});
+  var colors=labels.map(function(c){return CAT_COLORS[c]||'#888';});
+  var total=data.reduce(function(a,b){return a+b;},0);
+  var ctx=document.getElementById(canvasId);
+  if(!ctx||!labels.length){if(document.getElementById(legendId))document.getElementById(legendId).innerHTML='';return;}
+  if(canvasId==='pie-chart'&&pieChart){pieChart.destroy();pieChart=null;}
+  if(canvasId==='pie-chart-in'&&pieChartIn){pieChartIn.destroy();pieChartIn=null;}
+  var ch=new Chart(ctx,{type:'doughnut',data:{labels:labels,datasets:[{data:data,backgroundColor:colors,borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false}}}});
+  if(canvasId==='pie-chart')pieChart=ch; else pieChartIn=ch;
+  var leg=document.getElementById(legendId);
+  if(leg)leg.innerHTML=labels.map(function(c,i){
+    var pct=total>0?Math.round((data[i]/total)*100):0;
+    return '<div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;margin-bottom:6px">'+
+      '<span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:2px;background:'+colors[i]+';display:inline-block"></span>'+c+'</span>'+
+      '<span style="color:var(--text2)">'+fmt(data[i])+' ('+pct+'%)</span></div>';
+  }).join('');
+}
+
+// DIZIMOS
+function renderDizimos(){
+  var list=getTxs(curMonth,curYear);
+  var dizTotal=0,dizCount=0;
+  list.filter(function(t){return t.type==='in'&&t.cat==='Dízimos';}).forEach(function(t){dizTotal+=t.amount;dizCount++;});
+  document.getElementById('dizimo-summary').innerHTML=
+    '<div style="display:flex;gap:8px;margin-bottom:12px">'+
+    '<div class="metric" style="flex:1"><div class="metric-lbl">Total dízimos</div><div class="metric-val p">'+fmt(dizTotal)+'</div></div>'+
+    '<div class="metric" style="flex:1"><div class="metric-lbl">Contribuições</div><div class="metric-val p">'+dizCount+'</div></div>'+
+    '<div class="metric" style="flex:1"><div class="metric-lbl">Membros</div><div class="metric-val p">'+members.length+'</div></div>'+
+    '</div>';
+  var dizimosByMember={};
+  list.filter(function(t){return t.type==='in'&&t.cat==='Dízimos'&&t.member;}).forEach(function(t){dizimosByMember[t.member]=(dizimosByMember[t.member]||0)+t.amount;});
+  var html=members.length?members.map(function(m){
+    var paid=dizimosByMember[m.name]||0;
+    var expected=m.dizimo||0;
+    var status=paid>=expected&&expected>0?'ok':'late';
+    return '<div class="member-row">'+
+      '<div class="member-av">'+m.name.charAt(0).toUpperCase()+'</div>'+
+      '<div style="flex:1"><div class="member-name">'+m.name+'</div>'+
+      '<div class="member-info">'+(expected>0?'Esperado: '+fmt(expected):'Sem valor definido')+'</div></div>'+
+      '<div style="text-align:right"><div style="font-size:13px;font-weight:500;color:'+(paid>0?'var(--green)':'var(--text3)')+'">'+fmt(paid)+'</div>'+
+      '<span class="member-status '+(status==='ok'?'status-ok':'status-late')+'">'+(status==='ok'?'Em dia':'Pendente')+'</span></div>'+
+    '</div>';
+  }).join(''):'<div class="empty">Nenhum membro cadastrado</div>';
+  document.getElementById('dizimo-members').innerHTML=html;
+}
+
+// ANNUAL
+function renderAnnual(){
+  sx('year-label',viewYear);
+  sx('print-annual-date',viewYear);
+  var list=getYrTxs(viewYear);
+  var tIn=0,tOut=0,tDiz=0;
+  list.forEach(function(t){
+    if(t.type==='in'){tIn+=t.amount;if(t.cat==='Dízimos')tDiz+=t.amount;}
+    else tOut+=t.amount;
+  });
+  var saldo=tIn-tOut;
+  document.getElementById('annual-metrics').innerHTML=
+    '<div class="metric"><div class="metric-lbl">Entradas</div><div class="metric-val g">'+fmt(tIn)+'</div></div>'+
+    '<div class="metric"><div class="metric-lbl">Saídas</div><div class="metric-val r">'+fmt(tOut)+'</div></div>'+
+    '<div class="metric"><div class="metric-lbl">Saldo</div><div class="metric-val '+(saldo>=0?'g':'r')+'">'+fmt(saldo)+'</div></div>';
+  var mx=0;
+  var md=MONTHS_SHORT.map(function(m,i){
+    var ml=getTxs(i,viewYear);var ic=0,ex=0;
+    ml.forEach(function(t){if(t.type==='in')ic+=t.amount;else ex+=t.amount;});
+    if(ic>mx)mx=ic;if(ex>mx)mx=ex;
+    return {m:m,inc:ic,exp:ex};
+  });
+  document.getElementById('annual-bars').innerHTML=md.map(function(d){
+    var pI=mx>0?Math.round((d.inc/mx)*100):0;var pO=mx>0?Math.round((d.exp/mx)*100):0;
+    return '<div class="yr-row">'+
+      '<div class="yr-mname">'+d.m+'</div>'+
+      '<div class="yr-bars">'+
+        '<div class="yr-track" style="height:10px;margin-bottom:3px"><div class="yr-fill-in" style="height:10px;width:'+pI+'%"></div></div>'+
+        '<div class="yr-track" style="height:10px"><div class="yr-fill-out" style="height:10px;width:'+pO+'%"></div></div>'+
+      '</div>'+
+      '<div class="yr-vals"><div style="color:var(--green)">'+fmt(d.inc)+'</div><div style="color:var(--red)">'+fmt(d.exp)+'</div></div>'+
+    '</div>';
+  }).join('');
+  var cats={};
+  list.filter(function(t){return t.type==='out';}).forEach(function(t){cats[t.cat]=(cats[t.cat]||0)+t.amount;});
+  var sk=Object.keys(cats).sort(function(a,b){return cats[b]-cats[a];});
+  document.getElementById('annual-cats').innerHTML=sk.length?sk.map(function(c){
+    var pct=tOut>0?Math.round((cats[c]/tOut)*100):0;var cl=CAT_COLORS[c]||'#888';
+    return '<div class="yr-row">'+
+      '<div style="display:flex;align-items:center;gap:8px;flex:1">'+
+        '<span style="width:10px;height:10px;border-radius:2px;background:'+cl+';display:inline-block"></span>'+
+        '<span style="font-size:13px">'+c+'</span></div>'+
+      '<div style="display:flex;align-items:center;gap:8px">'+
+        '<span style="font-size:13px;font-weight:500;color:var(--red)">'+fmt(cats[c])+'</span>'+
+        '<span style="font-size:11px;color:var(--text3)">'+pct+'%</span>'+
+      '</div></div>';
+  }).join(''):'<div class="empty">Sem saídas neste ano</div>';
+  // annual dizimos
+  var dizByMonth=MONTHS_SHORT.map(function(m,i){
+    var ml=getTxs(i,viewYear);var diz=0;
+    ml.filter(function(t){return t.type==='in'&&t.cat==='Dízimos';}).forEach(function(t){diz+=t.amount;});
+    return {m:m,diz:diz};
+  });
+  document.getElementById('annual-dizimos').innerHTML=
+    '<div style="margin-bottom:8px;font-size:13px;font-weight:500;color:var(--purple)">Total anual: '+fmt(tDiz)+'</div>'+
+    dizByMonth.map(function(d){
+      return '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:0.5px solid var(--border);font-size:13px">'+
+        '<span>'+d.m+'</span><span style="color:'+(d.diz>0?'var(--green)':'var(--text3)')+'">'+fmt(d.diz)+'</span></div>';
+    }).join('');
+}
+
+// MEMBERS
+function renderMembers(){
+  document.getElementById('members-list').innerHTML=members.length?members.map(function(m,i){
+    return '<div class="member-row">'+
+      '<div class="member-av">'+m.name.charAt(0).toUpperCase()+'</div>'+
+      '<div style="flex:1">'+
+        '<div class="member-name">'+m.name+'</div>'+
+        '<div class="member-info">'+(m.phone||'')+(m.phone&&m.dizimo?' — ':'')+(m.dizimo?'Dízimo: '+fmt(m.dizimo):'')+'</div>'+
+        (m.obs?'<div class="member-info">'+m.obs+'</div>':'')+'</div>'+
+      '<button class="btn-del" onclick="delMember('+i+')">×</button>'+
+    '</div>';
+  }).join(''):'<div class="empty">Nenhum membro cadastrado ainda</div>';
+}
+
+function addMember(){
+  var name=document.getElementById('f-member-name').value.trim();
+  if(!name){notify('Informe o nome do membro','warn');return;}
+  var phone=document.getElementById('f-member-phone').value.trim();
+  var dizimo=parseFloat(document.getElementById('f-member-dizimo').value)||0;
+  var obs=document.getElementById('f-member-obs').value.trim();
+  members.push({name:name,phone:phone,dizimo:dizimo,obs:obs});
+  save('members',members);
+  document.getElementById('f-member-name').value='';
+  document.getElementById('f-member-phone').value='';
+  document.getElementById('f-member-dizimo').value='';
+  document.getElementById('f-member-obs').value='';
+  renderMembers();rebuildMemberSel();
+  notify('Membro adicionado!','ok');
+}
+
+function delMember(i){
+  members.splice(i,1);save('members',members);renderMembers();rebuildMemberSel();
+}
+
+// ADD TX
+function rebuildCatSel(){
+  var type=document.getElementById('f-type').value;
+  var sel=document.getElementById('f-cat');sel.innerHTML='';
+  var cats=type==='in'?CATS_IN:CATS_OUT;
+  cats.forEach(function(c){var o=document.createElement('option');o.value=c;o.textContent=c;sel.appendChild(o);});
+}
+
+function rebuildMemberSel(){
+  var sel=document.getElementById('f-member-sel');if(!sel)return;
+  sel.innerHTML='<option value="">— Selecionar membro —</option>';
+  members.forEach(function(m){var o=document.createElement('option');o.value=m.name;o.textContent=m.name;sel.appendChild(o);});
+}
+
+function toggleCat(){
+  rebuildCatSel();
+  var isIn=document.getElementById('f-type').value==='in';
+  document.getElementById('member-row').style.display=isIn?'block':'none';
+}
+
+function addTx(){
+  var type=document.getElementById('f-type').value;
+  var amount=parseFloat(document.getElementById('f-amount').value);
+  var desc=document.getElementById('f-desc').value.trim();
+  var cat=document.getElementById('f-cat').value;
+  var date=document.getElementById('f-date').value;
+  var obs=document.getElementById('f-obs').value.trim();
+  var member=type==='in'?document.getElementById('f-member-sel').value:'';
+  if(!amount||amount<=0){notify('Informe um valor válido','warn');return;}
+  if(!desc){notify('Informe uma descrição','warn');return;}
+  if(!date){notify('Selecione uma data','warn');return;}
+  txs.push({type:type,amount:amount,desc:desc,cat:cat,date:date,obs:obs,member:member});
+  save('txs',txs);
+  document.getElementById('f-amount').value='';
+  document.getElementById('f-desc').value='';
+  document.getElementById('f-obs').value='';
+  renderRecent();notify('Lançamento adicionado!','ok');
+}
+
+function renderRecent(){
+  var s=txs.slice().sort(function(a,b){return new Date(b.date)-new Date(a.date);}).slice(0,10);
+  document.getElementById('recent-list').innerHTML=s.length?s.map(function(t){
+    var d=new Date(t.date);var day=d.getDate()+' '+MONTHS_SHORT[d.getMonth()]+' '+d.getFullYear();
+    var cl=CAT_COLORS[t.cat]||'#888';
+    return '<div class="tx-row">'+
+      '<span class="tx-cat" style="background:'+cl+'22;color:'+cl+'">'+t.cat+'</span>'+
+      '<span class="tx-desc">'+t.desc+'</span>'+
+      '<span class="tx-date">'+day+'</span>'+
+      '<span class="tx-val '+(t.type==='out'?'out':'in')+'">'+(t.type==='out'?'−':'+')+fmt(t.amount)+'</span>'+
+    '</div>';
+  }).join(''):'<div class="empty">Nenhum lançamento ainda</div>';
+}
+
+// SETTINGS
+function saveChurchInfo(){
+  churchInfo.name=document.getElementById('f-church-name').value||'Minha Igreja';
+  churchInfo.city=document.getElementById('f-church-city').value||'';
+  churchInfo.pastor=document.getElementById('f-church-pastor').value||'';
+  save('churchInfo',churchInfo);
+  updateChurchHeader();
+  notify('Dados salvos!','ok');
+}
+
+function renderBudgetSettings(){
+  var html='';
+  CATS_OUT.forEach(function(c){
+    var v=budgets[c]||'';
+    html+='<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:0.5px solid var(--border)">'+
+      '<span style="flex:1;font-size:13px">'+c+'</span>'+
+      '<input type="number" value="'+v+'" min="0" step="10" placeholder="0" '+
+        'onchange="budgets[\''+c+'\']=parseFloat(this.value)||0;save(\'budgets\',budgets)" '+
+        'style="width:90px;background:var(--bg2);border:0.5px solid var(--border2);border-radius:var(--radius-sm);padding:6px 8px;font-size:13px;color:var(--text);font-family:Inter,sans-serif;outline:none"/>'+
+    '</div>';
+  });
+  document.getElementById('budget-settings').innerHTML=html;
+  document.getElementById('f-church-name').value=churchInfo.name||'';
+  document.getElementById('f-church-city').value=churchInfo.city||'';
+  document.getElementById('f-church-pastor').value=churchInfo.pastor||'';
+}
+
+function exportCSV(){
+  var rows=['Data,Tipo,Descrição,Categoria,Membro,Valor,Observação'];
+  txs.forEach(function(t){
+    rows.push(t.date+','+(t.type==='in'?'Entrada':'Saída')+','+t.desc+','+t.cat+','+(t.member||'')+','+t.amount+','+(t.obs||''));
+  });
+  var blob=new Blob([rows.join('\n')],{type:'text/csv;charset=utf-8;'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='financas-igreja.csv';a.click();
+}
+
+function exportExcel(){
+  var rows=['<table><tr><th>Data</th><th>Tipo</th><th>Descrição</th><th>Categoria</th><th>Membro</th><th>Valor</th><th>Observação</th></tr>'];
+  txs.forEach(function(t){
+    rows.push('<tr><td>'+t.date+'</td><td>'+(t.type==='in'?'Entrada':'Saída')+'</td><td>'+t.desc+'</td><td>'+t.cat+'</td><td>'+(t.member||'')+'</td><td>'+t.amount+'</td><td>'+(t.obs||'')+'</td></tr>');
+  });
+  rows.push('</table>');
+  var blob=new Blob([rows.join('')],{type:'application/vnd.ms-excel'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='financas-igreja.xls';a.click();
+}
+
+function clearData(){
+  if(!confirm('Limpar TODOS os dados? Esta ação não pode ser desfeita!'))return;
+  txs=[];save('txs',txs);notify('Dados apagados!','ok');renderMonth();
+}
+
+function printReport(){window.print();}
+
+function notify(msg,type){
+  var el=document.getElementById('notif');
+  el.textContent=msg;
+  var bc={ok:'rgba(45,122,15,0.4)',warn:'rgba(184,134,11,0.4)',danger:'rgba(192,57,43,0.4)'};
+  var tc={ok:'var(--green)',warn:'var(--gold)',danger:'var(--red)'};
+  el.style.border='1px solid '+(bc[type]||bc.ok);
+  el.style.color=tc[type]||tc.ok;
+  el.classList.add('show');
+  clearTimeout(el._t);el._t=setTimeout(function(){el.classList.remove('show');},2500);
+}
+
+// INIT
+var today=now.toISOString().split('T')[0];
+document.getElementById('f-date').value=today;
+rebuildCatSel();
+rebuildMemberSel();
+updateChurchHeader();
+
+if(pin){
+  document.getElementById('main-nav').style.display='none';
+}else{
+  unlockApp();
+}
+</script>
+</body>
+</html>
